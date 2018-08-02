@@ -1,12 +1,8 @@
-Changelog
-=========
-## Unreleased
+# Release Notes for Stripe for Craft Commerce
 
-### Fixed
-- Passing user id integer instead of user element when creating a subscription. ([#12](https://github.com/craftcms/commerce-stripe/commit/61090bedfa9efe40f23c57a77c25cb3e50d50438))
+## 1.0.3
 
-### Added
-- Subscription Form model which supports coupon, prorate, and metadata [Subscription Arguments](https://stripe.com/docs/api#create_subscription) ([#14](https://github.com/craftcms/commerce-stripe/issues/14))  
+- Fixed a PHP error that occurred when subscribing a user to a plan. ([#17](https://github.com/craftcms/commerce-stripe/issues/17))
 
 ## 1.0.2
 
