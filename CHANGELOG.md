@@ -1,5 +1,10 @@
 # Release Notes for Stripe for Craft Commerce
 
+## 1.0.4 - 2018-08-22
+
+- Switch Stripe API version to '2018-07-27'.
+- Stop limiting subscription plan listing to 10 subscription plans.
+
 ## 1.0.3
 
 - Fixed a PHP error that occurred when subscribing a user to a plan. ([#17](https://github.com/craftcms/commerce-stripe/issues/17))
