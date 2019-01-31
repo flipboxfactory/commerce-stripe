@@ -7,22 +7,21 @@
 
 namespace craft\commerce\stripe\events;
 
-use craft\commerce\stripe\models\Invoice;
-use craft\events\CancelableEvent;
+use yii\base\Event;
 
 /**
- * Class SaveInvoiceEvent
+ * Class SubscriptionRequestEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 1.0
  */
-class SaveInvoiceEvent extends CancelableEvent
+class SubscriptionRequestEvent extends Event
 {
     // Properties
     // =========================================================================
 
     /**
-     * @var Invoice The invoice being saved.
+     * @var array The subscription parameters
      */
-    public $invoice;
+    public $parameters;
 }

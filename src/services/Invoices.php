@@ -8,7 +8,6 @@
 namespace craft\commerce\stripe\services;
 
 use Craft;
-use craft\commerce\stripe\events\PayInvoiceEvent;
 use craft\commerce\stripe\events\SaveInvoiceEvent;
 use craft\commerce\stripe\models\Invoice;
 use craft\commerce\stripe\records\Invoice as InvoiceRecord;
@@ -27,6 +26,25 @@ class Invoices extends Component
 {
     // Constants
     // =========================================================================
+
+    /**
+     * @event SaveInvoiceEvent The event that is triggered when an invoice is saved.
+     * You may set [[SaveInvoiceEvent::isValid]] to `false` to prevent the invoice from being saved
+     *
+     * Plugins can get notified whenever a new invoice for a subscription is being saved.
+     *
+     * ```php
+     * use craft\commerce\stripe\events\SaveInvoiceEvent;
+     * use craft\commerce\stripe\services\Invoices;
+     * use yii\base\Event;
+     *
+     * Event::on(Invoices::class, Invoices::EVENT_BEFORE_SAVE_INVOICE, function(SaveInvoiceEvent $e) {
+     *     $stripeInvoiceId = $e->invoice->invoiceId;
+     *     // Do something with the data...
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_SAVE_INVOICE = 'beforeSaveInvoice';
 
     /**
      * @event SaveInvoiceEvent The event that is triggered when an invoice is saved.
@@ -53,10 +71,9 @@ class Invoices extends Component
      * Returns a customer by gateway and user id.
      *
      * @param int $subscriptionId The subscription id.
-     *
      * @return Invoice[]
      */
-    public function getSubscriptionInvoices(int $subscriptionId)
+    public function getSubscriptionInvoices(int $subscriptionId): array
     {
         $results = $this->_createInvoiceQuery()
             ->where(['subscriptionId' => $subscriptionId])
@@ -77,11 +94,10 @@ class Invoices extends Component
      * Save an invoice.
      *
      * @param Invoice $invoice The invoice being saved.
-     *
      * @return bool Whether the invoice was saved successfully
      * @throws Exception if invoice not found by id.
      */
-    public function saveInvoice(Invoice $invoice)
+    public function saveInvoice(Invoice $invoice): bool
     {
         if ($invoice->id) {
             $record = InvoiceRecord::findOne($invoice->id);
@@ -102,6 +118,15 @@ class Invoices extends Component
         $record->invoiceData = $invoice->invoiceData;
 
         if ($invoice->validate()) {
+            $event = new SaveInvoiceEvent(['invoice' => $invoice]);
+
+            // Fire a 'beforeSaveInvoice' event.
+            $this->trigger(self::EVENT_BEFORE_SAVE_INVOICE, $event);
+
+            if (!$event->isValid) {
+                return false;
+            }
+
             $record->save(false);
             $invoice->id = $record->id;
 
